@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chúc mừng sinh nhật Sơn Đẹp Zai</title>
+    <style>
+        body {
+            background: #ffe6f2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+        }
+
+        .gift-box {
+            width: 200px;
+            cursor: pointer;
+            margin-top: 50px;
+            animation: pulse 2s infinite;
+        }
+
+        .message {
+            display: none;
+            color: #e91e63;
+            font-size: 24px;
+            margin: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(233, 30, 99, 0.3);
+            animation: colorChange 5s infinite;
+        }
+
+        .candle {
+            width: 40px;
+            height: 100px;
+            background: #fff;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .flame {
+            width: 15px;
+            height: 30px;
+            background: #ff9900;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: absolute;
+            top: -35px;
+            left: 12px;
+            transition: all 0.3s;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes colorChange {
+            0% { color: #e91e63; }
+            25% { color: #9c27b0; }
+            50% { color: #2196f3; }
+            75% { color: #4caf50; }
+            100% { color: #e91e63; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://cdn-icons-png.flaticon.com/512/869/869636.png" 
+             alt="Hộp quà" 
+             class="gift-box" 
+             onclick="showMessage()">
+        
+        <div class="candle">
+            <div class="flame" id="flame"></div>
+        </div>
+
+        <div class="message" id="message">
+            🎉 Happy birthday SONNY, my uncle! 🎂<br>
+            Chúc cậu Sơn đẹp zai thêm tuổi mới,<br>
+            Nhiều niềm vui mới, luôn mạnh khỏe,<br>
+            Hạnh phúc, công việc thuận lợi,<br>
+            Vạn sự hanh thông, kiếm thật nhiều $$$$! 💰
+        </div>
+    </div>
+
+    <script>
+        let isBlown = false;
+
+        function showMessage() {
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            message.style.animation = 'fadeIn 1s';
+        }
+
+        // Xử lý hiệu ứng thổi nến
+        async function setupBlowDetection() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new AudioContext();
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function checkBlow() {
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = dataArray.reduce((a, b) => a + b, 0);
+                    
+                    if (sum > 1000 && !isBlown) {
+                        document.getElementById('flame').style.opacity = '0';
+                        isBlown = true;
+                    }
+                    
+                    requestAnimationFrame(checkBlow);
+                }
+                
+                checkBlow();
+            } catch (err) {
+                console.log('Lỗi truy cập micro:', err);
+            }
+        }
+
+        // Kích hoạt khi người dùng click lần đầu
+        document.body.addEventListener('click', () => {
+            if (!isBlown) {
+                setupBlowDetection();
+                alert('Hãy thổi vào micro để thổi tắt nến nào! 🎂');
+            }
+        }, { once: true });
+    </script>
+</body>
+</html>
